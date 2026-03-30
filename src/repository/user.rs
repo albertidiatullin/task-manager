@@ -101,7 +101,7 @@ impl UserRepository {
     Err(anyhow::Error::msg("Пользователь не найден"))
     }
 
-    pub async fn get_user_for_create_task<'a>(&self,model:GetUserUUIDModel) -> Option<DataForHandler>{
+    pub async fn get_user_for_create_task(&self,model:GetUserUUIDModel) -> Option<DataForHandler>{
         let user_data = self.get_user_of_uuid(model).await;
         if let Ok(data) = user_data{
             return Some(data);

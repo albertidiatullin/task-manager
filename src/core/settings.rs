@@ -1,7 +1,10 @@
 use dotenv::dotenv;
 use std::env::{VarError};
 use clap::Parser;
+use tokio::sync::{RwLock};
 use configparser::ini::Ini;
+
+
 
 #[derive(Parser)]
 pub struct Settings{
@@ -29,7 +32,7 @@ pub struct AppConfig{
 
 
 impl AppConfig {
-    pub fn build() -> Self{
+    pub fn build() -> RwLock<AppConfig>{
     let mut config = Ini::new();
     config.load("root_cfg.cfg").expect("Config file not found");
 
@@ -40,11 +43,12 @@ impl AppConfig {
     let email = config.get("root_data", "root_email")
         .expect("root_email is missing");
     
-    Self { 
+    
+    RwLock::new(Self { 
         root_name: name, 
         root_pass: pass, 
         root_email: email 
-    }
+    })
 
 }}
 

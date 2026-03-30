@@ -26,6 +26,16 @@ pub async fn need_auth_return_router()-> Result<Router<Arc<AppState>>,AppError>{
        let state = get_state().await.map_err(|e|AppError::InternalServerError { err: e.to_string() })?;
        Ok(Router::new()
         .route("/users/me/logout", post(logout_handler))
+        .merge(task_router().await?)
+        .layer(from_fn(auth_middleware))
+        .layer(from_fn_with_state(state,session_valid_middleware)))
+
+}
+
+
+async fn task_router() -> Result<Router<Arc<AppState>>,AppError>{
+       let state = get_state().await.map_err(|e|AppError::InternalServerError { err: e.to_string() })?;
+        Ok(Router::new()
         .route("/tasks/create_task", post(crate_task))
         .route("/tasks", get(get_all_tasks))
         .route("/tasks/{task_id}", get(get_task))
@@ -33,5 +43,4 @@ pub async fn need_auth_return_router()-> Result<Router<Arc<AppState>>,AppError>{
         .route("/tasks/delete", delete(delete_task))
         .layer(from_fn(auth_middleware))
         .layer(from_fn_with_state(state,session_valid_middleware)))
-
 }
